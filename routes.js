@@ -12,7 +12,7 @@ var Reservering = require('./models/reservering.js');
 var Organisator = require('./models/organisator.js');
 var Feest = require('./models/feest.js');
 var Order = require('./models/order.js');
-var Test = require('./tests/newTest.js');
+var Test = require('./models/newTest.js');
 
 //QR-Stuff
 var qr = require('qr-image');
