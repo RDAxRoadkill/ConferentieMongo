@@ -1,0 +1,56 @@
+{% extends 'index.html.twig' %}
+
+{% block body %}
+    
+<head>
+ <!-- Stylesheets -->
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/main.css" rel="stylesheet">
+    
+    <!-- Library Scripts -->
+    <script src="/jquery/dist/jquery.min.js"></script>
+</head>
+<h2>Tickets kopen!</h2>
+
+<div class ="container">
+    <form action="/ReserveringV2" method="post">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" name="email" placeholder="email"><br>
+        </div>
+        <div class="form-group">
+            <h3>Tickets:</h3> <br>
+            <label for="tickets">Vrijdag:    </label>
+            <input type="number" name="ticketVrijdag" class="form-control" placeholder="Aantal tickets vrijdag"><br>
+            <label for="tickets">Zaterdag:    </label>
+            <input type="number" name="ticketZaterdag" class="form-control" placeholder="Aantal tickets Zaterdag"><br>
+            <label for="tickets">Zondag:    </label>
+            <input type="number" name="ticketZondag" class="form-control" placeholder="Aantal tickets Zondag"><br>
+        </div>
+        <div class="form-group">
+            <h3>Lunch:</h3> <br>
+            <label for="tickets">Vrijdag:    </label>
+            <input type="number" name="lunchVrijdag" class="form-control" placeholder="Aantal tickets vrijdag"><br>
+            <label for="tickets">Zaterdag:    </label>
+            <input type="number" name="lunchZaterdag" class="form-control" placeholder="Aantal tickets Zaterdag"><br>
+            <label for="tickets">Zondag:    </label>
+            <input type="number" name="lunchZondag" class="form-control" placeholder="Aantal tickets Zondag"><br>
+        </div>
+        <div class="form-group">
+            <h3>Diner:</h3> <br>
+            <label for="tickets">Zaterdag:    </label>
+            <input type="number" name="dinerZaterdag" class="form-control" placeholder="Aantal tickets Zaterdag"><br>
+            <label for="tickets">Zondag:    </label>
+            <input type="number" name="dinerZondag" class="form-control" placeholder="Aantal tickets Zondag"><br>
+        </div>
+        <div class="form-group">
+            <h3>Acties:</h3> <br>
+            <label for="tickets">Weekend:    </label>
+            <input type="number" name="weekend" class="form-control" placeholder="Aantal tickets weekend"><br>
+            <label for="tickets">Parsepartout:    </label>
+            <input type="number" name="parsepartout" class="form-control" placeholder="Aantal tickets Parse partout"><br>
+        </div>
+        <input type="submit" class="btn btn-default" name="Submit"> 
+    </form>
+</div>
+{% endblock %}

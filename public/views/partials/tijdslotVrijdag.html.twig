@@ -1,0 +1,51 @@
+{% extends 'index.html.twig' %}
+
+{% block body %}
+    
+<head>
+ <!-- Stylesheets -->
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/main.css" rel="stylesheet">
+    
+    <!-- Library Scripts -->
+    <script src="/jquery/dist/jquery.min.js"></script>
+</head>
+    <body>
+            <div class="container">
+                <h3>Dag - Vrijdag</h3>
+                <table class="table table-bordered">
+                    <tr>
+                    <th>Tijd</th>
+                    <th>Zaal</th>
+                    <th>Status</th>
+                    <th>Keuze</th>
+                    </tr>
+                    <tr>
+                        {% for slot in slot_items %}
+                         <tr>
+                            <td>{{slot.beginTijd}} - {{slot.eindTijd}}</td>   
+                            <td>Zaal: {{slot.Zaal}}</td>
+                            <td>{{slot.status}}</td>
+                            <td>
+                              <form action="/slotKeuze" method="post">
+                                <input type="hidden" value ="{{slot.idSlot}}" name ="idSlot" >
+                                <input type="hidden" value ="{{slot.Zaal}}" name ="zaalnummer" >
+                                <input type="hidden" value ="{{slot.beginTijd}}" name ="beginTijd" >
+                                <input type="hidden" value ="{{slot.eindTijd}}" name ="eindTijd" >
+                                 <select id="keuzeType" name="keuzeType">
+                                    <option value='Geen'>Niet spreken</option>
+                                    <option value='eersteKeuze'>Eerste keuze</option>
+                                    <option value="tweedeKeuze">Tweede keuze</option
+                                </select> 
+                            </td>
+                            <td>
+                               <input type="submit" class="btn btn-default" value="Kiezen" name="Submit">
+                             </form>
+                            </td>
+                         </tr>
+                        {% endfor %}
+                    </tr>
+                </table>
+            </div>   
+    </body>
+{% endblock %}

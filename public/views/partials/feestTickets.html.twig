@@ -1,0 +1,51 @@
+{% extends 'index.html.twig' %}
+
+{% block body %}
+    
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="http://pingendo.github.io/pingendo-bootstrap/themes/default/bootstrap.css" rel="stylesheet" type="text/css">
+    </head>
+        </body>
+            <script>
+        $(document).ready(function(){
+            $('#aantalTickets').on('change',function(){
+                var showAantal = $('#aantalTickets').val();
+                var totaalaantal = 25 * $('#aantalTickets').val();
+                totaalaantal = Math.round(totaalaantal * 100) / 100;
+                $('#totalprijs').html(totaalaantal);
+                $('#ticketaantal').html(showAantal);
+                console.log(this.value);
+            })
+        });
+    </script> 
+<body>
+    <div class="section">
+     <div class="container">
+        <div class="row">
+         <div class="col-md-12">
+            <td>Prijs per ticket: 25</td><br>
+            <td>Aantal tickets: <span id="ticketaantal">0</span></td><br>
+                 
+            <br>--------------------------------------------------<br>
+            <td>Totaal prijs te betalen: <span id="totalprijs">0</span></td><br><br>
+            <form action="/confirmParty" method="post">
+                    <div class="form-group"><label class="control-label" for="Email">Aantal Tickets</label><input class="form-control" name="aantalTickets" placeholder="Enter aantalTickets" id="aantalTickets" type="number" required
+                    min=1 {% for feest in feest_items %} max={{feest.maxAantalTickets}} {% endfor %}>
+                    </div>
+                    {% for feest in feest_items %}
+                     <p>U kunt maximaal <td> {{feest.maxAantalTickets}} </td>tickets bestellen</p>
+                 {% endfor %}
+                    <input type="submit" class="btn btn-default" value="Maak keuze tickets" name="Submit"> 
+            </form>
+         </div>
+        </div>
+     </div>
+    </div>
+
+{% endblock %}

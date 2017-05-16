@@ -1,0 +1,20 @@
+/*Header */
+div#lineDarkBlue {
+    height: 15px;
+    width: 100%;
+    background-color: #7390A4;
+    margin-right: 0px;
+}
+
+div#lineLightBlue {
+    height: 7px;
+    width: 100%;
+    background-color: #A9BCCA;
+    margin-right: 0px;
+}
+
+div#header {
+    height: 150px;
+    background-color: #A8ABCA;
+}
+    

@@ -1,0 +1,22 @@
+{% extends 'index.html.twig' %}
+
+{% block body %}
+    
+<head>
+<!-- Stylesheets -->
+<link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="/stylesheets/main.css" rel="stylesheet">
+        
+<!-- Library Scripts -->
+<script src="/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+        <div class ="container">
+                {% for tijdslot in tijdslot_items %}
+                      <tr>
+                         <td>{{tijdslot}}</td>  
+                      </tr>
+                     {% endfor %}
+         </div>
+ </body>
+ {% endblock %} 

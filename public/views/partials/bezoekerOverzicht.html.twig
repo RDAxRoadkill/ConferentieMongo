@@ -1,0 +1,31 @@
+{% extends 'index.html.twig' %}
+
+{% block body %}
+    
+<head>
+ <!-- Stylesheets -->
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/main.css" rel="stylesheet">
+    
+    <!-- Library Scripts -->
+    <script src="/jquery/dist/jquery.min.js"></script>
+</head>
+<h2>Bezoeker overzicht</h2>
+    <div id="functions">
+                <h5>Functies Organisator</h5>
+                <a href="/toekennenSloten">Sloten toekennen</a><br>
+                <a href="">Ticket overzicht</a><br>
+                <a href="/bezoekerOverzicht">Bezoeker overzicht</a><br>
+     </div>
+<div class ="container">
+        <div class="agenda-item row-fluid">
+            {% for bezoeker in bezoekers %}
+                    <div CLASS="span4"> ticketID: {{bezoeker.ticketID}} </div> 
+                    <div CLASS="span4"> incheckTijd: {{bezoeker.incheckTijd}} </div> 
+                    <div CLASS="span4"> aantalGebruikersBinnen: {{bezoeker.aantalGebruikersBinnen}} </div> 
+                    <div CLASS="span4"> email: {{bezoeker.email}} </div> 
+                <hr />
+            {% endfor %}
+        </div>
+</div>
+{% endblock %}

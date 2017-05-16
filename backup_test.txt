@@ -1,0 +1,349 @@
+DROP TABLE Aanvraagtags
+
+CREATE TABLE `Aanvraagtags` (
+  `idAanvraag` int(11) NOT NULL AUTO_INCREMENT,
+  `idTags` int(11) NOT NULL,
+  KEY `FK_Tags_idx` (`idTags`),
+  KEY `FK_AanvraagTags_idx` (`idAanvraag`),
+  CONSTRAINT `FK_Tags` FOREIGN KEY (`idTags`) REFERENCES `Tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `FK_AanvraagTags` FOREIGN KEY (`idAanvraag`) REFERENCES `Aanvragen` (`idSlot`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE Aanvragen
+
+CREATE TABLE `Aanvragen` (
+  `idSlot` int(11) NOT NULL AUTO_INCREMENT,
+  `idSpreker` int(11) NOT NULL,
+  `onderwerpSlot` varchar(45) DEFAULT NULL,
+  `zaalNummer` varchar(45) DEFAULT NULL,
+  `beginTijd` varchar(45) DEFAULT NULL,
+  `eindTijd` varchar(45) DEFAULT NULL,
+  `keuzeType` varchar(45) DEFAULT NULL,
+  `datum` datetime DEFAULT NULL,
+  `naam` varchar(45) DEFAULT NULL,
+  `tussenvoegsel` varchar(45) DEFAULT NULL,
+  `achternaam` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idSlot`),
+  KEY `FK_TijdslotSpreker_idx` (`idSpreker`),
+  CONSTRAINT `FK_TijdslotSpreker` FOREIGN KEY (`idSpreker`) REFERENCES `Spreker` (`idSpreker`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8
+
+DROP TABLE Activegebruikers
+
+CREATE TABLE `Activegebruikers` (
+  `ticketID` int(11) NOT NULL,
+  `incheckTijd` datetime NOT NULL,
+  `aantalGebruikersBinnen` int(11) DEFAULT NULL,
+  `email` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Agenda
+
+CREATE TABLE `Agenda` (
+  `idSlot` int(11) NOT NULL,
+  `idSpreker` int(11) DEFAULT NULL,
+  `onderwerpSlot` varchar(45) DEFAULT NULL,
+  `zaalNummer` varchar(45) DEFAULT NULL,
+  `beginTijd` varchar(45) DEFAULT NULL,
+  `eindTijd` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idSlot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Bestelling
+
+CREATE TABLE `Bestelling` (
+  `ticketID` int(11) NOT NULL AUTO_INCREMENT,
+  `hashCode` varchar(45) DEFAULT NULL,
+  `QRCode` varchar(45) DEFAULT NULL,
+  `ticketType` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `totaalAantalTickets` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`ticketID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8
+
+DROP TABLE Bestellingen
+
+CREATE TABLE `Bestellingen` (
+  `ticketType` varchar(45) DEFAULT NULL,
+  `prijs` varchar(45) DEFAULT NULL,
+  `aantalVrij` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Bestellingfeest
+
+CREATE TABLE `Bestellingfeest` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aantalTickets` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `gekozenSector` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Feestplaatsen
+
+CREATE TABLE `Feestplaatsen` (
+  `id` int(11) NOT NULL,
+  `AantalVrij` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Feestuitnodiging
+
+CREATE TABLE `Feestuitnodiging` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(45) DEFAULT NULL,
+  `maxAantalTickets` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE Login
+
+CREATE TABLE `Login` (
+  `email` varchar(45) NOT NULL,
+  `wachtwoord` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Maaltijd
+
+CREATE TABLE `Maaltijd` (
+  `idMaaltijd` int(11) NOT NULL AUTO_INCREMENT,
+  `ticketID` int(11) DEFAULT NULL,
+  `lunchVrijdag` int(11) DEFAULT NULL,
+  `lunchZaterdag` int(11) DEFAULT NULL,
+  `dinerZaterdag` int(11) DEFAULT NULL,
+  `lunchZondag` int(11) DEFAULT NULL,
+  `dinerZondag` int(11) DEFAULT NULL,
+  `idSpreker` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idMaaltijd`),
+  KEY `FK_MaltijdTickets_idx` (`ticketID`),
+  CONSTRAINT `FK_MaaltijdTickets` FOREIGN KEY (`ticketID`) REFERENCES `Bestelling` (`ticketID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8
+
+DROP TABLE Maaltijden
+
+CREATE TABLE `Maaltijden` (
+  `maaltijdType` varchar(45) DEFAULT NULL,
+  `prijs` varchar(45) DEFAULT NULL,
+  `aantalVrij` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Slot
+
+CREATE TABLE `Slot` (
+  `idSlot` int(11) NOT NULL,
+  `beginTijd` varchar(45) NOT NULL,
+  `eindTijd` varchar(45) NOT NULL,
+  `Zaal` varchar(45) DEFAULT NULL,
+  `status` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idSlot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE Spreker
+
+CREATE TABLE `Spreker` (
+  `idSpreker` int(11) NOT NULL AUTO_INCREMENT,
+  `onderwerp` varchar(45) DEFAULT NULL,
+  `wensen` varchar(45) DEFAULT NULL,
+  `voorkeurSloten` varchar(45) DEFAULT NULL,
+  `toegewezenSloten` varchar(45) DEFAULT NULL,
+  `naam` varchar(45) DEFAULT NULL,
+  `tussenvoegsel` varchar(45) DEFAULT NULL,
+  `achternaam` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `rol` varchar(45) DEFAULT NULL,
+  `idMaaltijd` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idSpreker`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8
+
+DROP TABLE Tags
+
+CREATE TABLE `Tags` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naamTag` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE Tickets
+
+CREATE TABLE `Tickets` (
+  `ticketID` int(11) NOT NULL AUTO_INCREMENT,
+  `ticketVrijdag` int(11) DEFAULT NULL,
+  `ticketZaterdag` int(11) DEFAULT NULL,
+  `ticketZondag` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ticketID`),
+  CONSTRAINT `FK_BestellingTickets` FOREIGN KEY (`ticketID`) REFERENCES `Bestelling` (`ticketID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8
+
+DROP TABLE aanvraagtags
+
+CREATE TABLE `aanvraagtags` (
+  `idAanvraag` int(11) NOT NULL AUTO_INCREMENT,
+  `idTags` int(11) NOT NULL,
+  KEY `FK_Tags_idx` (`idTags`),
+  KEY `FK_AanvraagTags_idx` (`idAanvraag`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE aanvragen
+
+CREATE TABLE `aanvragen` (
+  `idSlot` int(11) NOT NULL AUTO_INCREMENT,
+  `idSpreker` int(11) NOT NULL,
+  `onderwerpSlot` varchar(45) DEFAULT NULL,
+  `zaalNummer` varchar(45) DEFAULT NULL,
+  `beginTijd` varchar(45) DEFAULT NULL,
+  `eindTijd` varchar(45) DEFAULT NULL,
+  `keuzeType` varchar(45) DEFAULT NULL,
+  `datum` datetime DEFAULT NULL,
+  `naam` varchar(45) DEFAULT NULL,
+  `tussenvoegsel` varchar(45) DEFAULT NULL,
+  `achternaam` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idSlot`),
+  KEY `FK_TijdslotSpreker_idx` (`idSpreker`)
+) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8
+
+DROP TABLE activegebruikers
+
+CREATE TABLE `activegebruikers` (
+  `ticketID` int(11) NOT NULL,
+  `incheckTijd` datetime NOT NULL,
+  `aantalGebruikersBinnen` int(11) DEFAULT NULL,
+  `email` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE agenda
+
+CREATE TABLE `agenda` (
+  `idSlot` int(11) NOT NULL,
+  `idSpreker` int(11) DEFAULT NULL,
+  `onderwerpSlot` varchar(45) DEFAULT NULL,
+  `zaalNummer` varchar(45) DEFAULT NULL,
+  `beginTijd` varchar(45) DEFAULT NULL,
+  `eindTijd` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idSlot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE bestelling
+
+CREATE TABLE `bestelling` (
+  `ticketID` int(11) NOT NULL AUTO_INCREMENT,
+  `hashCode` varchar(45) DEFAULT NULL,
+  `QRCode` varchar(45) DEFAULT NULL,
+  `ticketType` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `totaalAantalTickets` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`ticketID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE bestellingen
+
+CREATE TABLE `bestellingen` (
+  `ticketType` varchar(45) DEFAULT NULL,
+  `prijs` varchar(45) DEFAULT NULL,
+  `aantalVrij` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE bestellingfeest
+
+CREATE TABLE `bestellingfeest` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `aantalTickets` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `gekozenSector` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE feestplaatsen
+
+CREATE TABLE `feestplaatsen` (
+  `id` int(11) NOT NULL,
+  `AantalVrij` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE feestuitnodiging
+
+CREATE TABLE `feestuitnodiging` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(45) DEFAULT NULL,
+  `maxAantalTickets` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE login
+
+CREATE TABLE `login` (
+  `email` varchar(45) NOT NULL,
+  `wachtwoord` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE maaltijd
+
+CREATE TABLE `maaltijd` (
+  `idMaaltijd` int(11) NOT NULL AUTO_INCREMENT,
+  `ticketID` int(11) DEFAULT NULL,
+  `lunchVrijdag` int(11) DEFAULT NULL,
+  `lunchZaterdag` int(11) DEFAULT NULL,
+  `dinerZaterdag` int(11) DEFAULT NULL,
+  `lunchZondag` int(11) DEFAULT NULL,
+  `dinerZondag` int(11) DEFAULT NULL,
+  `idSpreker` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idMaaltijd`),
+  KEY `FK_MaltijdTickets_idx` (`ticketID`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8
+
+DROP TABLE maaltijden
+
+CREATE TABLE `maaltijden` (
+  `maaltijdType` varchar(45) DEFAULT NULL,
+  `prijs` varchar(45) DEFAULT NULL,
+  `aantalVrij` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE slot
+
+CREATE TABLE `slot` (
+  `idSlot` int(11) NOT NULL,
+  `beginTijd` varchar(45) NOT NULL,
+  `eindTijd` varchar(45) NOT NULL,
+  `Zaal` varchar(45) DEFAULT NULL,
+  `status` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`idSlot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+DROP TABLE spreker
+
+CREATE TABLE `spreker` (
+  `idSpreker` int(11) NOT NULL AUTO_INCREMENT,
+  `onderwerp` varchar(45) DEFAULT NULL,
+  `wensen` varchar(45) DEFAULT NULL,
+  `voorkeurSloten` varchar(45) DEFAULT NULL,
+  `toegewezenSloten` varchar(45) DEFAULT NULL,
+  `naam` varchar(45) DEFAULT NULL,
+  `tussenvoegsel` varchar(45) DEFAULT NULL,
+  `achternaam` varchar(45) DEFAULT NULL,
+  `email` varchar(45) DEFAULT NULL,
+  `rol` varchar(45) DEFAULT NULL,
+  `idMaaltijd` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idSpreker`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8
+
+DROP TABLE tags
+
+CREATE TABLE `tags` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `naamTag` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
+DROP TABLE tickets
+
+CREATE TABLE `tickets` (
+  `ticketID` int(11) NOT NULL AUTO_INCREMENT,
+  `ticketVrijdag` int(11) DEFAULT NULL,
+  `ticketZaterdag` int(11) DEFAULT NULL,
+  `ticketZondag` int(11) DEFAULT NULL,
+  PRIMARY KEY (`ticketID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8
+
