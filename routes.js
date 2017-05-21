@@ -14,6 +14,10 @@ var Feest = require('./models/feest.js');
 var Order = require('./models/order.js');
 var Test = require('./models/newTest.js');
 
+//Mongo Includes
+var OrderSchema = require('./schemas/orderSchema.js');
+var OrderMongo = require('./models/mongoOrder.js');
+
 //QR-Stuff
 var qr = require('qr-image');
 var fs = require('fs');
@@ -1046,7 +1050,7 @@ router.post('/testPDF', function (req, res) {
     });
 });
 
-router.get('/tests', function (req, res) { //geen klant
+router.get('/tests', function (req, res) { 
     console.log("test geactiveerd");
       Test.testSloten(function(err, callback, result){
           if(err){
@@ -1064,5 +1068,76 @@ router.get('/tests', function (req, res) { //geen klant
          })
   });
 
+//MongoDB Routes
+router.get('/mongoOrder', function (req, res) {
+    res.render('mongo/tickets.html.twig');
+});
+
+//Deze route moet eigenlijk na betaling bevestingen komen
+//Eerst vrij checks etc
+router.post('/newReserveringMongo', function (req, res) {
+    var ticketVrijdag = req.body.ticketVrijdag.join("");
+    var ticketZaterdag = req.body.ticketZaterdag.join("");
+    var ticketZondag = req.body.ticketZondag.join("");
+    var totaalAantalTickets = '';
+    var post = {
+        ticketVrijdag: req.body.ticketVrijdag,
+        ticketZaterdag: req.body.ticketZaterdag,
+        ticketZondag: req.body.ticketZondag,
+        totaalAantalTickets: totaalAantalTickets
+    }
+    var newOrder = new OrderSchema({
+        email:req.body.email,
+        ticketType: req.body.ticketType,
+        totaalAantalTickets: totaalAantalTickets,
+        QRCode: 'QR.png',
+        maaltijd: [{
+           lunchVrijdag: req.body.lunchVrijdag.join(""), 
+           lunchZaterdag: req.body.lunchZaterdag.join(""),
+           lunchZondag: req.body.lunchZondag.join(""),
+           dinerZaterdag: req.body.dinerZaterdag.join(""),
+           dinerZondag: req.body.dinerZondag.join(""),
+        }],
+        tickets: [{
+            ticketVrijdag: req.body.ticketVrijdag.join(""),
+            ticketZaterdag: req.body.ticketZaterdag.join(""),
+            ticketZondag: req.body.ticketZondag.join(""),    
+        }],
+    });
+    Reservering.calculateTotalTickets(post, function (err, callback) {
+        if (err) {
+            console.log(err);
+            res.render('partials/error/betalingError.html.twig');
+        } else {
+            newOrder.totaalAantalTickets = callback
+            console.log(newOrder);
+            sess = req.session;
+            //Session variables
+            sess.ticketType = req.body.ticketType;
+            sess.ticketVrijdag = req.body.ticketVrijdag;
+            sess.ticketZaterdag = req.body.ticketZaterdag;
+            sess.ticketZondag = req.body.ticketZondag;
+            sess.maaltijdType = req.body.maaltijdType;
+            sess.lunchVrijdag = req.body.lunchVrijdag;
+            sess.lunchZaterdag = req.body.lunchZaterdag;
+            sess.lunchZondag = req.body.lunchZondag;
+            sess.dinerZaterdag = req.body.dinerZaterdag;
+            sess.dinerZondag = req.body.dinerZondag;
+            sess.email = req.body.email;
+            //newOrder.save();
+            res.redirect('/betalenMongo');
+        }
+    });
+});
+
+router.get('/betalenMongo', function (req, res){
+   console.log('betalen met mongo'); 
+    //Dit dus uitbreiden met alle waardes etc
+   res.render('mongo/betalen.html.twig');
+});
+
+router.post('/confirmOrderMongo', function(req, res){
+    console.log('order confirmed');
+});
 
 module.exports = router;

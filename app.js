@@ -22,16 +22,6 @@ var port = process.env.PORT || 3000;
 app.set('views', path.join(__dirname + '/public/views' ));
 app.set('view engine', 'twig');
 
-//Mongo
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log('Connected to Mongo');
-});
-
-
 //middleware
 app.use(session({secret: '123', cookie: {maxAge: 60000}, resave: false, saveUninitialized: true}));
 app.use(favicon(path.join(__dirname, '/public', 'favicon.ico')));
