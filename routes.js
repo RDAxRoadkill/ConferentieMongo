@@ -2,6 +2,8 @@ var express = require('express');
 var path = require('path');
 var router = express.Router();
 var sess;
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 //Includes
 var passwordHash = require('password-hash');
@@ -17,6 +19,7 @@ var Test = require('./models/newTest.js');
 //Mongo Includes
 var OrderSchema = require('./schemas/orderSchema.js');
 var OrderMongo = require('./models/mongoOrder.js');
+var OrderTickets = require('./schemas/orderTickets.js');
 
 //QR-Stuff
 var qr = require('qr-image');
@@ -24,7 +27,8 @@ var fs = require('fs');
 var _ = require('underscore');
 var moment = require('moment');
 var PDFDocument = require('pdfkit');
-var sendgrid = require("sendgrid")("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");
+//Sendgird key is not shown for safety reasons
+var sendgrid = require("sendgrid")("");
 moment().format();
 
 //Index
@@ -1081,63 +1085,186 @@ router.post('/newReserveringMongo', function (req, res) {
     var ticketZondag = req.body.ticketZondag.join("");
     var totaalAantalTickets = '';
     var post = {
+        ticketType: req.body.ticketType,
         ticketVrijdag: req.body.ticketVrijdag,
         ticketZaterdag: req.body.ticketZaterdag,
         ticketZondag: req.body.ticketZondag,
         totaalAantalTickets: totaalAantalTickets
     }
-    var newOrder = new OrderSchema({
-        email:req.body.email,
-        ticketType: req.body.ticketType,
-        totaalAantalTickets: totaalAantalTickets,
-        QRCode: 'QR.png',
-        maaltijd: [{
-           lunchVrijdag: req.body.lunchVrijdag.join(""), 
-           lunchZaterdag: req.body.lunchZaterdag.join(""),
-           lunchZondag: req.body.lunchZondag.join(""),
-           dinerZaterdag: req.body.dinerZaterdag.join(""),
-           dinerZondag: req.body.dinerZondag.join(""),
-        }],
-        tickets: [{
-            ticketVrijdag: req.body.ticketVrijdag.join(""),
-            ticketZaterdag: req.body.ticketZaterdag.join(""),
-            ticketZondag: req.body.ticketZondag.join(""),    
-        }],
-    });
+    console.log(post);
+    //Function to add all ticketTypes to one value so we can calculate with it
     Reservering.calculateTotalTickets(post, function (err, callback) {
         if (err) {
             console.log(err);
             res.render('partials/error/betalingError.html.twig');
         } else {
-            newOrder.totaalAantalTickets = callback
-            console.log(newOrder);
-            sess = req.session;
-            //Session variables
-            sess.ticketType = req.body.ticketType;
-            sess.ticketVrijdag = req.body.ticketVrijdag;
-            sess.ticketZaterdag = req.body.ticketZaterdag;
-            sess.ticketZondag = req.body.ticketZondag;
-            sess.maaltijdType = req.body.maaltijdType;
-            sess.lunchVrijdag = req.body.lunchVrijdag;
-            sess.lunchZaterdag = req.body.lunchZaterdag;
-            sess.lunchZondag = req.body.lunchZondag;
-            sess.dinerZaterdag = req.body.dinerZaterdag;
-            sess.dinerZondag = req.body.dinerZondag;
-            sess.email = req.body.email;
-            //newOrder.save();
-            res.redirect('/betalenMongo');
+            post.totaalAantalTickets = callback;
+            var ticketTypeCheck = post.ticketType;
+            var totaalAantalTickets = post.totaalAantalTickets;
+            console.log(ticketTypeCheck);
+            //By only getting the chosen type, we can safely execute any calculation needed
+            OrderTickets.find({ticketType: ticketTypeCheck}, function(err, tickets) {
+              if (err) throw err;
+              console.log(tickets);
+              var databaseAantalVrij = tickets[0].aantalVrij;
+                
+              if(tickets[0].aantalVrij <= 0) {
+                  console.log('Geen tickets meer');
+                  res.render('partials/error/optredenVol.html.twig');
+              } else {
+                  var result = (databaseAantalVrij - totaalAantalTickets);
+                  console.log(result);
+                  if(result <= 0) {
+                      console.log('Aantal tickets zijn niet meer vrij');
+                      res.render('partials/error/optredenVol.html.twig');
+                  } else {
+                      console.log('Tickets mogen eraf gehaald worden.');
+                      var updateQuery = {'_id': tickets[0]._id };
+                      var newData = {
+                          _v: tickets[0]._v,
+                          ticketType: ticketTypeCheck,
+                          prijs: tickets[0].prijs,
+                          aantalVrij: result
+                      }
+                        sess = req.session;
+                        //Session variables
+                        sess.prijs =  tickets[0].prijs;
+                        sess.updateQuery = updateQuery;
+                        sess.newData = newData;
+                        sess.totaalAantalTickets = totaalAantalTickets;
+                        sess.ticketType = req.body.ticketType;
+                        sess.ticketVrijdag = req.body.ticketVrijdag.join("");
+                        sess.ticketZaterdag = req.body.ticketZaterdag.join("");
+                        sess.ticketZondag = req.body.ticketZondag.join("");
+                        sess.maaltijdType = req.body.maaltijdType;
+                        sess.lunchVrijdag = req.body.lunchVrijdag.join("");
+                        sess.lunchZaterdag = req.body.lunchZaterdag.join("");
+                        sess.lunchZondag = req.body.lunchZondag.join("");
+                        sess.dinerZaterdag = req.body.dinerZaterdag.join("");
+                        sess.dinerZondag = req.body.dinerZondag.join("");
+                        sess.email = req.body.email;
+                        res.redirect('/betalenMongo');
+                  }
+                  console.log(result);
+              }
+            });
+
         }
     });
 });
 
 router.get('/betalenMongo', function (req, res){
    console.log('betalen met mongo'); 
-    //Dit dus uitbreiden met alle waardes etc
-   res.render('mongo/betalen.html.twig');
+    //Dit dus uitbreiden met alle checks & view fixes etc
+    //Ze price check
+    console.log(sess.prijs);
+    var priceTicket = sess.prijs;
+    if (sess.lunchVrijdag != 0 || sess.lunchZaterdag != 0 || sess.lunchZondag != 0) {
+        var lunch = 1;
+    } else {
+        var lunch = 0;
+    }
+    if (sess.dinerZaterdag != 0 || sess.dinerZondag != 0) {
+        var diner = 1;
+    } else {
+        var diner = 0
+    }
+    console.log(diner);
+    console.log(lunch);
+    
+    //Ticket
+    var calculation = priceTicket * sess.ticketVrijdag;
+    var calculation2 = priceTicket * sess.ticketZaterdag;
+    var calculation3 = priceTicket * sess.ticketZondag;
+    var solution = calculation + calculation2 + calculation3;
+
+    console.log(calculation);
+    console.log(calculation2);
+    console.log(calculation3);
+    console.log(solution);
+    
+    //verdere calculaties en solution toevoegen
+    if (lunch == 1) {
+        var lunchCalculation = 20 * sess.lunchVrijdag;
+        var lunchCalculation2 = 20 * sess.lunchZaterdag;
+        var lunchCalculation3 = 20 * sess.lunchZondag;
+        var lunchSolution = lunchCalculation + lunchCalculation2 + lunchCalculation3;
+    }
+    if (diner == 1) {
+        var dinerCalculation = 30 * sess.dinerZaterdag;
+        var dinerCalculation2 = 30 * sess.dinerZondag;
+        var dinerSolution = dinerCalculation + dinerCalculation2;
+    }
+    if(dinerSolution == undefined){
+        var dinerSolution = 0;
+    }
+    if(lunchSolution == undefined){
+        var lunchSolution = 0;
+    }
+        var foodSolution = dinerSolution + lunchSolution;
+        var completePrice = foodSolution + solution;
+        console.log(completePrice);
+            res.render('mongo/betalen.html.twig', {
+                solution: solution,
+                priceTicket: priceTicket,
+                ticketVrijdag: sess.ticketVrijdag,
+                ticketZaterdag: sess.ticketZaterdag,
+                ticketZondag: sess.ticketZondag,
+                foodSolution: foodSolution,
+                completePrice: completePrice,
+            });
 });
 
 router.post('/confirmOrderMongo', function(req, res){
-    console.log('order confirmed');
+    var newOrder = new OrderSchema({
+        email: sess.email,
+        ticketType: sess.ticketType,
+        totaalAantalTickets: sess.totaalAantalTickets,
+        QRCode: 'QR.png',
+        maaltijd: [{
+           lunchVrijdag: sess.lunchVrijdag, 
+           lunchZaterdag: sess.lunchZaterdag,
+           lunchZondag: sess.lunchZondag,
+           dinerZaterdag: sess.dinerZaterdag,
+           dinerZondag: sess.dinerZondag,
+        }],
+        tickets: [{
+            ticketVrijdag: sess.ticketVrijdag,
+            ticketZaterdag: sess.ticketZaterdag,
+            ticketZondag: sess.ticketZondag,    
+        }],
+    });
+    OrderTickets.findOneAndUpdate(sess.updateQuery, sess.newData, {upsert:false}, function(err, doc){
+        if (err) return res.send(500, { error: err });
+        newOrder.save();
+        console.log('order confirmed');
+        //Sendgrid
+        console.log(sess.ticketZaterdag);
+        if (sess.ticketZaterdag >= 1) {
+            console.log("Zaterdag keuze gemaakt!");
+            Feest.newUitnodiging(sess, function (err, callback) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Uitnodiging toegevoegd");
+                    sendgrid.send({
+                        to: sess.email,
+                        cc: 'wouter97@planet.nl',
+                        from: 'info@conferentieStorm.nl',
+                        subject: 'Netwerkbijeenkomst uitnodiging',
+                        text: 'Bedankt voor uw bestelling, Er zijn netwerkbijeenkomsten op zaterdagavond, bent u geintresseerd ga dan naar: http://localhost:8000/feest',
+                    }, function (err, json) {
+                        if (err) {
+                            return console.error(err);
+                        }
+                        console.log(json);
+                    });
+                }
+            });
+        }
+        //Sendgrid PDF functie inbouwen
+        res.render('partials/sucess/betalingGelukt.html.twig');
+    });
 });
 
 module.exports = router;

@@ -197,10 +197,11 @@ Reservering.calculateTotalTickets = function(obj, callback){
     obj.ticketZondag = obj.ticketZondag.join("");
     
     var totaalAantalTickets = (1 * obj.ticketVrijdag) + (1 * obj.ticketZaterdag) + (1 * obj.ticketZondag);
+    console.log('totale berekening:');
     console.log(totaalAantalTickets);
-    console.log((obj.ticketVrijdag));
-    console.log((obj.ticketZaterdag));
-    console.log((obj.ticketZondag));
+    console.log(obj.ticketVrijdag);
+    console.log(obj.ticketZaterdag);
+    console.log(obj.ticketZondag);
     return callback(null, totaalAantalTickets);
 }
 Reservering.newOrder = function(obj, callback) {

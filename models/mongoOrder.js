@@ -285,3 +285,18 @@ router.post('/confirmOrder', function (req, res) {
     })
     res.render('partials/sucess/betalingGelukt.html.twig');
 }); */
+
+/*
+var ticketSchema = require('../schemas/orderTickets.js');
+var bestellingen = new ticketSchema({
+    ticketType: 'ticketWeekend',
+    prijs: 80,
+    aantalVrij: 250,
+});
+
+bestellingen.save(function(err) {
+  if (err) throw err;
+
+  console.log('Tickets saved successfully!');
+});
+*/

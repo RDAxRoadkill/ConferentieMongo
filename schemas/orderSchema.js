@@ -26,7 +26,7 @@ var orderSchema = new Schema({
         lunchZaterdag: Number,
         lunchZondag: Number,
         dinerZaterdag: Number,
-        dinerZondag: String
+        dinerZondag: Number
     }],
     tickets: [{
        idTicket: Number,
@@ -35,21 +35,6 @@ var orderSchema = new Schema({
        ticketZondag: Number,
     }],
 });
-
-/*
-orderSchema.methods.newOrder = function() {
-    this.ticketID = this.ticketID;
-    this.hashCode = this.hashCode;
-    this.QRCode = this.QRCode;
-    this.ticketType = this.ticketType;
-    this.email = this.email;
-    this.totaalAantalTickets = this.totaalAantalTickets;
-    this.maaltijd = Array(this.lunchVrijdag = this.lunchVrijdag ,this.lunchZaterdag = this.lunchZaterdag, this.lunchZondag = this.lunchZondag, this.dinerZaterdag = this.dinerZaterdag, this.dinerZondag = this.dinerZondag
-    );
-    console.log(this.maaltijd);
-    return this.ticketID;
-}
-*/
 
 //The Schema is useless, needs a model before using it
 var MongooseOrder = mongoose.model('Order', orderSchema);
