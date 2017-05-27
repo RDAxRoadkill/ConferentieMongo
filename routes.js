@@ -1128,6 +1128,7 @@ router.post('/newReserveringMongo', function (req, res) {
                       }
                         sess = req.session;
                         //Session variables
+                        sess.id = tickets[0]._id;
                         sess.prijs =  tickets[0].prijs;
                         sess.updateQuery = updateQuery;
                         sess.newData = newData;
@@ -1234,6 +1235,13 @@ router.post('/confirmOrderMongo', function(req, res){
             ticketZondag: sess.ticketZondag,    
         }],
     });
+    var ticketsArray = 
+        [{
+            ticketVrijdag: sess.ticketVrijdag,
+            ticketZaterdag: sess.ticketZaterdag,
+            ticketZondag: sess.ticketZondag,    
+        }];
+    console.log(ticketsArray);
     OrderTickets.findOneAndUpdate(sess.updateQuery, sess.newData, {upsert:false}, function(err, doc){
         if (err) return res.send(500, { error: err });
         newOrder.save();
@@ -1242,29 +1250,55 @@ router.post('/confirmOrderMongo', function(req, res){
         console.log(sess.ticketZaterdag);
         if (sess.ticketZaterdag >= 1) {
             console.log("Zaterdag keuze gemaakt!");
-            Feest.newUitnodiging(sess, function (err, callback) {
+            sendgrid.send({
+                to: sess.email,
+                cc: 'wouter97@planet.nl',
+                from: 'info@conferentieStorm.nl',
+                subject: 'Netwerkbijeenkomst uitnodiging',
+                text: 'Bedankt voor uw bestelling, Er zijn netwerkbijeenkomsten op zaterdagavond, bent u geintresseerd ga dan naar: http://localhost:8000/feest',
+            }, function (err, json) {
                 if (err) {
-                    console.log(err);
-                } else {
-                    console.log("Uitnodiging toegevoegd");
+                    return console.error(err);
+                }
+                    console.log(json);
+                });
+        } 
+        newOrder.createPDF(sess, ticketsArray, function (err, callback) {
+            if (err) {
+                return console.error(err);
+            }
+            console.log(callback);
+            setTimeout(function () {
+                fs.readFile('./test.pdf', function (err, data) {
+                    if (err) {
+                        console.log(err);
+                        res.render('partials/error/standaardError.html.twig');
+                    }
+                    console.log(data);
                     sendgrid.send({
                         to: sess.email,
                         cc: 'wouter97@planet.nl',
                         from: 'info@conferentieStorm.nl',
-                        subject: 'Netwerkbijeenkomst uitnodiging',
-                        text: 'Bedankt voor uw bestelling, Er zijn netwerkbijeenkomsten op zaterdagavond, bent u geintresseerd ga dan naar: http://localhost:8000/feest',
+                        subject: 'Uw conferentie tickets',
+                        files: [{
+                            filename: 'test.pdf',
+                            content: new Buffer(data.toString('base64'), 'base64'),
+                            contentType: 'application/pdf'
+                        }],
+                        html: 'Bedankt voor uw bestelling, hierbij uw tickets!'
                     }, function (err, json) {
                         if (err) {
-                            return console.error(err);
+                                console.log(path.resolve(process.cwd(), 'out.pdf'));
+                                return console.error(err);
                         }
-                        console.log(json);
+                            console.log(json);
                     });
-                }
-            });
-        }
-        //Sendgrid PDF functie inbouwen
-        res.render('partials/sucess/betalingGelukt.html.twig');
+                     res.render('partials/sucess/betalingGelukt.html.twig');
+                 });
+              }, 3000);
+        });    
     });
 });
+
 
 module.exports = router;
