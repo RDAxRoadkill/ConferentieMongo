@@ -20,6 +20,7 @@ var Test = require('./models/newTest.js');
 var OrderSchema = require('./schemas/orderSchema.js');
 var OrderMongo = require('./models/mongoOrder.js');
 var OrderTickets = require('./schemas/orderTickets.js');
+var MongoBackup = require('./models/mongoJob.js');
 
 //QR-Stuff
 var qr = require('qr-image');
@@ -1300,5 +1301,16 @@ router.post('/confirmOrderMongo', function(req, res){
     });
 });
 
+router.get('/backupMongo', function (req, res){ 
+    MongoBackup.createDump(sess, function (err, callback){
+        if(callback == 1){
+            res.render('partials/sucess/backupSuccess.html.twig');   
+        } else {
+            console.log(err);
+            res.render('partials/error/standaardError.html.twig');
+        }
+       
+    });
+});
 
 module.exports = router;

@@ -307,8 +307,8 @@ Reservering.createPDF = function(obj, callback){
             })
         })
     })
-})
-    })
+   })
+  })
 }
 
 module.exports = Reservering;
